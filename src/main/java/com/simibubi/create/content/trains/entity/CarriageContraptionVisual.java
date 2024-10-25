@@ -12,9 +12,10 @@ import com.simibubi.create.foundation.utility.Iterate;
 import dev.engine_room.flywheel.api.visual.DynamicVisual;
 import dev.engine_room.flywheel.api.visualization.VisualizationContext;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
+import net.minecraft.nbt.CompoundTag;
 
 public class CarriageContraptionVisual extends ContraptionVisual<CarriageContraptionEntity> {
-	private final PoseStack ms = new PoseStack();
+	private final PoseStack poseStack = new PoseStack();
 
 	@Nullable
 	private Carriage carriage;
@@ -59,10 +60,10 @@ public class CarriageContraptionVisual extends ContraptionVisual<CarriageContrap
 		float viewXRot = entity.getViewXRot(partialTick);
 		int bogeySpacing = carriage.bogeySpacing;
 
-		ms.pushPose();
+		poseStack.pushPose();
 
 		Vector3f visualPosition = getVisualPosition(partialTick);
-		TransformStack.of(ms)
+		TransformStack.of(poseStack)
 			.translate(visualPosition);
 
 		for (boolean current : Iterate.trueAndFalse) {
@@ -75,17 +76,21 @@ public class CarriageContraptionVisual extends ContraptionVisual<CarriageContrap
 				continue;
 			}
 
-			ms.pushPose();
+			poseStack.pushPose();
 			CarriageBogey bogey = visualizedBogey.bogey;
 
-			CarriageContraptionEntityRenderer.translateBogey(ms, bogey, bogeySpacing, viewYRot, viewXRot, partialTick);
-			ms.translate(0, -1.5 - 1 / 128f, 0);
+			CarriageContraptionEntityRenderer.translateBogey(poseStack, bogey, bogeySpacing, viewYRot, viewXRot, partialTick);
+			poseStack.translate(0, -1.5 - 1 / 128f, 0);
 
-			visualizedBogey.visual.update(bogey.wheelAngle.getValue(partialTick), ms);
-			ms.popPose();
+			CompoundTag bogeyData = bogey.bogeyData;
+			if (bogeyData == null) {
+				bogeyData = new CompoundTag();
+			}
+			visualizedBogey.visual.update(bogeyData, bogey.wheelAngle.getValue(partialTick), poseStack);
+			poseStack.popPose();
 		}
 
-		ms.popPose();
+		poseStack.popPose();
 	}
 
 	@Override
@@ -120,7 +125,7 @@ public class CarriageContraptionVisual extends ContraptionVisual<CarriageContrap
 	private record VisualizedBogey(CarriageBogey bogey, BogeyVisual visual) {
 		@Nullable
 		static VisualizedBogey of(VisualizationContext ctx, CarriageBogey bogey, float partialTick) {
-			BogeyVisual visual = bogey.getStyle().createVisual(ctx, bogey, partialTick);
+			BogeyVisual visual = bogey.getStyle().createVisual(bogey.getSize(), ctx, partialTick, true);
 			if (visual == null) {
 				return null;
 			}

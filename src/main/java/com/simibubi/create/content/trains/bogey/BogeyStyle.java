@@ -12,7 +12,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBogeyStyles;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.trains.bogey.BogeySizes.BogeySize;
-import com.simibubi.create.content.trains.entity.CarriageBogey;
 import com.simibubi.create.foundation.utility.Lang;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationContext;
@@ -96,10 +95,10 @@ public class BogeyStyle {
 
 	@OnlyIn(Dist.CLIENT)
 	@Nullable
-	public BogeyVisual createVisual(VisualizationContext ctx, CarriageBogey bogey, float partialTick) {
-		SizeRenderer renderer = sizeRenderers.get(bogey.getSize());
+	public BogeyVisual createVisual(BogeySize size, VisualizationContext ctx, float partialTick, boolean inContraption) {
+		SizeRenderer renderer = sizeRenderers.get(size);
 		if (renderer != null) {
-			return renderer.visualizer.createVisual(ctx, bogey, partialTick);
+			return renderer.visualizer.createVisual(ctx, partialTick, inContraption);
 		}
 		return null;
 	}

@@ -199,6 +199,7 @@ import com.simibubi.create.content.schematics.cannon.SchematicannonRenderer;
 import com.simibubi.create.content.schematics.cannon.SchematicannonVisual;
 import com.simibubi.create.content.schematics.table.SchematicTableBlockEntity;
 import com.simibubi.create.content.trains.bogey.BogeyBlockEntityRenderer;
+import com.simibubi.create.content.trains.bogey.BogeyBlockEntityVisual;
 import com.simibubi.create.content.trains.bogey.StandardBogeyBlockEntity;
 import com.simibubi.create.content.trains.display.FlapDisplayBlockEntity;
 import com.simibubi.create.content.trains.display.FlapDisplayRenderer;
@@ -844,6 +845,7 @@ public class AllBlockEntityTypes {
 
 	public static final BlockEntityEntry<StandardBogeyBlockEntity> BOGEY = REGISTRATE
 		.blockEntity("bogey", StandardBogeyBlockEntity::new)
+		.visual(() -> BogeyBlockEntityVisual::new, false)
 		.renderer(() -> BogeyBlockEntityRenderer::new)
 		.validBlocks(AllBlocks.SMALL_BOGEY, AllBlocks.LARGE_BOGEY)
 		.register();

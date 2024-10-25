@@ -113,6 +113,6 @@ public abstract class AbstractBogeyBlockEntity extends CachedRenderBBBlockEntity
 		setChanged();
 		Level level = getLevel();
 		if (level != null)
-			getLevel().sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+			level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
 	}
 }

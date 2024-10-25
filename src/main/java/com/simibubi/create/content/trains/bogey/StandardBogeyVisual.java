@@ -1,24 +1,29 @@
 package com.simibubi.create.content.trains.bogey;
 
+import java.util.function.Consumer;
+
+import org.jetbrains.annotations.Nullable;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.kinetics.simpleRelays.ShaftBlock;
-import com.simibubi.create.content.trains.entity.CarriageBogey;
 import com.simibubi.create.foundation.render.VirtualRenderHelper;
 import com.simibubi.create.foundation.utility.AngleHelper;
 
+import dev.engine_room.flywheel.api.instance.Instance;
 import dev.engine_room.flywheel.api.visualization.VisualizationContext;
 import dev.engine_room.flywheel.lib.instance.InstanceTypes;
 import dev.engine_room.flywheel.lib.instance.TransformedInstance;
 import dev.engine_room.flywheel.lib.model.Models;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 
 public class StandardBogeyVisual implements BogeyVisual {
 	private final TransformedInstance shaft1;
 	private final TransformedInstance shaft2;
 
-	public StandardBogeyVisual(VisualizationContext ctx, CarriageBogey bogey, float partialTick) {
+	public StandardBogeyVisual(VisualizationContext ctx, float partialTick, boolean inContraption) {
 		var shaftInstancer = ctx.instancerProvider()
 				.instancer(InstanceTypes.TRANSFORMED, VirtualRenderHelper.blockModel(AllBlocks.SHAFT.getDefaultState()
 						.setValue(ShaftBlock.AXIS, Direction.Axis.Z)));
@@ -27,7 +32,7 @@ public class StandardBogeyVisual implements BogeyVisual {
 	}
 
 	@Override
-	public void update(float wheelAngle, PoseStack poseStack) {
+	public void update(CompoundTag bogeyData, float wheelAngle, PoseStack poseStack) {
 		shaft1.setTransform(poseStack)
 			.translate(-.5f, .25f, 0)
 			.center()
@@ -55,6 +60,12 @@ public class StandardBogeyVisual implements BogeyVisual {
 	}
 
 	@Override
+	public void collectCrumblingInstances(Consumer<@Nullable Instance> consumer) {
+		consumer.accept(shaft1);
+		consumer.accept(shaft2);
+	}
+
+	@Override
 	public void delete() {
 		shaft1.delete();
 		shaft2.delete();
@@ -65,8 +76,8 @@ public class StandardBogeyVisual implements BogeyVisual {
 		private final TransformedInstance wheel1;
 		private final TransformedInstance wheel2;
 
-		public Small(VisualizationContext ctx, CarriageBogey bogey, float partialTick) {
-			super(ctx, bogey, partialTick);
+		public Small(VisualizationContext ctx, float partialTick, boolean inContraption) {
+			super(ctx, partialTick, inContraption);
 			var wheelInstancer = ctx.instancerProvider()
 				.instancer(InstanceTypes.TRANSFORMED, Models.partial(AllPartialModels.SMALL_BOGEY_WHEELS));
 			frame = ctx.instancerProvider()
@@ -77,8 +88,8 @@ public class StandardBogeyVisual implements BogeyVisual {
 		}
 
 		@Override
-		public void update(float wheelAngle, PoseStack poseStack) {
-			super.update(wheelAngle, poseStack);
+		public void update(CompoundTag bogeyData, float wheelAngle, PoseStack poseStack) {
+			super.update(bogeyData, wheelAngle, poseStack);
 			wheel1.setTransform(poseStack)
 				.translate(0, 12 / 16f, -1)
 				.rotateXDegrees(wheelAngle)
@@ -109,6 +120,14 @@ public class StandardBogeyVisual implements BogeyVisual {
 		}
 
 		@Override
+		public void collectCrumblingInstances(Consumer<@Nullable Instance> consumer) {
+			super.collectCrumblingInstances(consumer);
+			consumer.accept(frame);
+			consumer.accept(wheel1);
+			consumer.accept(wheel2);
+		}
+
+		@Override
 		public void delete() {
 			super.delete();
 			frame.delete();
@@ -125,8 +144,8 @@ public class StandardBogeyVisual implements BogeyVisual {
 		private final TransformedInstance wheels;
 		private final TransformedInstance pin;
 
-		public Large(VisualizationContext ctx, CarriageBogey bogey, float partialTick) {
-			super(ctx, bogey, partialTick);
+		public Large(VisualizationContext ctx, float partialTick, boolean inContraption) {
+			super(ctx, partialTick, inContraption);
 			var secondaryShaftInstancer = ctx.instancerProvider()
 					.instancer(InstanceTypes.TRANSFORMED, VirtualRenderHelper.blockModel(AllBlocks.SHAFT.getDefaultState()
 							.setValue(ShaftBlock.AXIS, Direction.Axis.X)));
@@ -147,8 +166,8 @@ public class StandardBogeyVisual implements BogeyVisual {
 		}
 
 		@Override
-		public void update(float wheelAngle, PoseStack poseStack) {
-			super.update(wheelAngle, poseStack);
+		public void update(CompoundTag bogeyData, float wheelAngle, PoseStack poseStack) {
+			super.update(bogeyData, wheelAngle, poseStack);
 			secondaryShaft1.setTransform(poseStack)
 				.translate(-.5f, .25f, .5f)
 				.center()
@@ -199,6 +218,17 @@ public class StandardBogeyVisual implements BogeyVisual {
 			drive.light(packedLight).setChanged();
 			piston.light(packedLight).setChanged();
 			pin.light(packedLight).setChanged();
+		}
+
+		@Override
+		public void collectCrumblingInstances(Consumer<@Nullable Instance> consumer) {
+			super.collectCrumblingInstances(consumer);
+			consumer.accept(secondaryShaft1);
+			consumer.accept(secondaryShaft2);
+			consumer.accept(wheels);
+			consumer.accept(drive);
+			consumer.accept(piston);
+			consumer.accept(pin);
 		}
 
 		@Override
