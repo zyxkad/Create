@@ -70,8 +70,8 @@ public class DisplayLinkPeripheral extends SyncedPeripheral<DisplayLinkBlockEnti
 		} else if (data instanceof Map<?, ?> map) {
 			ObjectLuaTable table = new ObjectLuaTable(map);
 			bytes = new byte[table.length()];
-			for (int i = 1; i <= bytes.length; i++) {
-				bytes[i] = (byte) (table.getInt(i) & 0xff);
+			for (int i = 0; i < bytes.length; i++) {
+				bytes[i] = (byte) (table.getInt(i + 1) & 0xff);
 			}
 		} else {
 			throw LuaValues.badArgumentOf(args, 0, "string or table");
